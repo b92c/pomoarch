@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="mocha">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark light">
+    <title>arch@pomotimer :: ~ [HyprPomo 8-Bit]</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="crt-enabled">
+    <!-- CRT Scanline Overlay -->
+    <div class="crt-overlay" aria-hidden="true"></div>
+
+    <!-- Waybar / Polybar Top Status Bar -->
+    <header class="waybar" role="banner">
+        <div class="waybar-left">
+            <div class="arch-pill" title="Arch Linux x86_64 :: HyprPomo Rice">
+                <svg class="arch-pixel-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                    <rect x="7" y="1" width="2" height="2" fill="currentColor"/>
+                    <rect x="6" y="3" width="4" height="2" fill="currentColor"/>
+                    <rect x="5" y="5" width="6" height="2" fill="currentColor"/>
+                    <rect x="4" y="7" width="8" height="2" fill="currentColor"/>
+                    <rect x="3" y="9" width="4" height="2" fill="currentColor"/>
+                    <rect x="9" y="9" width="4" height="2" fill="currentColor"/>
+                    <rect x="2" y="11" width="4" height="2" fill="currentColor"/>
+                    <rect x="10" y="11" width="4" height="2" fill="currentColor"/>
+                    <rect x="1" y="13" width="3" height="2" fill="currentColor"/>
+                    <rect x="12" y="13" width="3" height="2" fill="currentColor"/>
+                </svg>
+                <span class="arch-user">arch@pomotimer</span>
+            </div>
+
+            <nav class="workspaces" aria-label="WM Workspaces" data-i18n-aria="wsNavAria">
+                <button type="button" class="ws-btn is-active" data-ws="all" title="Show all windows" data-i18n-title="wsAllTitle">[0: ⊞ tile-all]</button>
+                <button type="button" class="ws-btn" data-ws="timer" title="Focus Timer" data-i18n-title="wsTimerTitle">[1: 🍅 timer]</button>
+                <button type="button" class="ws-btn" data-ws="tasks" title="Focus Tasks" data-i18n-title="wsTasksTitle">[2: 📝 tasks]</button>
+                <button type="button" class="ws-btn" data-ws="fetch" title="Focus Fastfetch" data-i18n-title="wsFetchTitle">[3: 📊 fetch]</button>
+                <button type="button" class="ws-btn" data-ws="man" title="Focus Manual" data-i18n-title="wsManTitle">[4: 📖 man]</button>
+            </nav>
+        </div>
+
+        <div class="waybar-center">
+            <div class="status-ticker" id="waybarTicker" aria-live="polite">
+                [FOCUS_MODE :: 25:00 :: STANDBY]
+            </div>
+        </div>
+
+        <div class="waybar-right">
+            <button type="button" class="wb-module" id="toggleSfxBtn" aria-pressed="true" title="Toggle 8-bit audio" data-i18n-title="sfxBtnTitle">
+                [🔊 SFX: ON]
+            </button>
+            <button type="button" class="wb-module" id="toggleCrtBtn" aria-pressed="true" title="Toggle CRT effect" data-i18n-title="crtBtnTitle">
+                [📺 CRT: ON]
+            </button>
+            <button type="button" class="wb-module" id="toggleThemeBtn" title="Switch Mocha / Latte theme" data-i18n-title="themeBtnTitle">
+                [🌙 RICE: MOCHA]
+            </button>
+            <button type="button" class="wb-module" id="toggleLangBtn" title="Switch language (EN / PT)" data-i18n-title="langBtnTitle">
+                [🌐 LANG: EN]
+            </button>
+            <button type="button" class="wb-module wb-accent" id="openSettingsBtn" command="show-modal" commandfor="dotfiles-dialog" title="Edit dotfiles.conf" data-i18n-title="settingsBtnTitle">
+                [⚙ dotfiles.conf]
+            </button>
+            <div class="wb-clock" id="waybarClock" aria-label="System clock" data-i18n-aria="clockAria">00:00:00</div>
+        </div>
+    </header>
+
+    <!-- Tiling Window Manager Grid -->
+    <main class="wm-grid" id="wmGrid" data-workspace="all">
+        <!-- Window 1: Pomodoro Engine -->
+        <section class="wm-window win-timer is-focused" data-win="timer" aria-labelledby="win-timer-title">
+            <div class="wm-titlebar">
+                <div class="wm-dots" aria-hidden="true">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <h1 class="wm-title" id="win-timer-title">~/bin/pomo-engine --8bit</h1>
+                <span class="wm-badge" id="timerStateBadge">[IDLE]</span>
+            </div>
+
+            <div class="wm-body timer-body">
+                <!-- Mode Selector Tabs -->
+                <div class="mode-tabs" role="tablist" aria-label="Pomodoro modes" data-i18n-aria="modeTabsAria">
+                    <button type="button" class="mode-tab is-active" role="tab" aria-selected="true" data-mode="focus" id="tabFocus">
+                        <span data-i18n="tabFocusLabel">POMODORO</span> (<span id="tabFocusMin">25</span>m)
+                    </button>
+                    <button type="button" class="mode-tab" role="tab" aria-selected="false" data-mode="shortBreak" id="tabShort">
+                        <span data-i18n="tabShortLabel">SHORT BREAK</span> (<span id="tabShortMin">5</span>m)
+                    </button>
+                    <button type="button" class="mode-tab" role="tab" aria-selected="false" data-mode="longBreak" id="tabLong">
+                        <span data-i18n="tabLongLabel">LONG BREAK</span> (<span id="tabLongMin">15</span>m)
+                    </button>
+                </div>
+
+                <!-- Quick inline +/- adjusters -->
+                <div class="quick-adjusters">
+                    <div class="adjuster-box adjuster-session">
+                        <span class="adj-label" data-i18n="sessionMinLabel">SESSION (MIN)</span>
+                        <div class="adj-controls">
+                            <button type="button" class="pixel-btn-sm" id="decSessionBtn" aria-label="Decrease session time" data-i18n-aria="decSessionAria">-</button>
+                            <span class="adj-val" id="quickSessionVal">25</span>
+                            <button type="button" class="pixel-btn-sm" id="incSessionBtn" aria-label="Increase session time" data-i18n-aria="incSessionAria">+</button>
+                        </div>
+                    </div>
+                    <div class="adjuster-box adjuster-break">
+                        <span class="adj-label" data-i18n="breakMinLabel">BREAK (MIN)</span>
+                        <div class="adj-controls">
+                            <button type="button" class="pixel-btn-sm" id="decBreakBtn" aria-label="Decrease break time" data-i18n-aria="decBreakAria">-</button>
+                            <span class="adj-val" id="quickBreakVal">5</span>
+                            <button type="button" class="pixel-btn-sm" id="incBreakBtn" aria-label="Increase break time" data-i18n-aria="incBreakAria">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8-Bit Sprite + Timer Stage -->
+                <div class="arcade-stage" id="arcadeStage" data-mode="focus">
+                    <div class="sprite-container" id="spriteContainer" aria-hidden="true">
+                        <!-- 16x16 Crisp SVG Pixel Art: Tomato Hero / Arch Companion -->
+                        <svg class="pixel-sprite" id="pixelSprite" viewBox="0 0 16 16" shape-rendering="crispEdges">
+                            <!-- Leaf / Crown -->
+                            <rect x="7" y="1" width="2" height="2" fill="#a6e3a1"/>
+                            <rect x="5" y="2" width="2" height="1" fill="#a6e3a1"/>
+                            <rect x="9" y="2" width="2" height="1" fill="#a6e3a1"/>
+                            <!-- Body -->
+                            <rect x="4" y="3" width="8" height="2" fill="#f38ba8"/>
+                            <rect x="3" y="5" width="10" height="6" fill="#f38ba8"/>
+                            <rect x="4" y="11" width="8" height="2" fill="#f38ba8"/>
+                            <!-- Highlight -->
+                            <rect x="4" y="5" width="2" height="2" fill="#fab387"/>
+                            <!-- Arch Visor / Eyes -->
+                            <rect x="4" y="7" width="8" height="2" fill="#11111b"/>
+                            <rect x="5" y="7" width="2" height="2" fill="#33bfff" class="sprite-eye"/>
+                            <rect x="9" y="7" width="2" height="2" fill="#33bfff" class="sprite-eye"/>
+                            <!-- Mouth / Expression -->
+                            <rect x="7" y="10" width="2" height="1" fill="#11111b"/>
+                            <!-- Feet -->
+                            <rect x="4" y="13" width="3" height="2" fill="#1793d1"/>
+                            <rect x="9" y="13" width="3" height="2" fill="#1793d1"/>
+                        </svg>
+                    </div>
+
+                    <div class="timer-readout" id="timerDisplay" aria-live="off">25:00</div>
+                    <div class="timer-substatus" id="timerSubstatus">&gt; FOCUS_MODE :: READY</div>
+                </div>
+
+                <!-- Segmented 8-Bit HP / Progress Bar + Native A11y Progress -->
+                <div class="hp-bar-wrap">
+                    <div class="hp-header">
+                        <span data-i18n="hpProgressLabel">HP / PROGRESS</span>
+                        <span id="hpPercentText">100%</span>
+                    </div>
+                    <div class="hp-segments" id="hpSegments" aria-hidden="true"></div>
+                    <progress class="sr-only" id="nativeProgress" max="100" value="100">100%</progress>
+                </div>
+
+                <!-- Arcade Control Deck -->
+                <div class="arcade-controls">
+                    <button type="button" class="arcade-btn btn-start" id="startPauseBtn">
+                        [▶ START]
+                    </button>
+                    <button type="button" class="arcade-btn btn-reset" id="resetBtn" data-i18n="btnReset">
+                        [↻ RESET]
+                    </button>
+                    <button type="button" class="arcade-btn btn-next" id="nextBtn" data-i18n="btnNext">
+                        [⏭ NEXT]
+                    </button>
+                </div>
+
+                <!-- Player RPG Status Bar -->
+                <div class="rpg-hud">
+                    <div class="rpg-row">
+                        <span class="rpg-level" id="rpgLevel">LVL 1 ARCH RICER</span>
+                        <span class="rpg-stats">
+                            <span data-i18n="hudCompletedLabel">COMPLETED:</span> <strong id="hudCompleted">0</strong> 🍅 &nbsp;|&nbsp;
+                            <span data-i18n="hudCycleLabel">CYCLE:</span> <strong id="hudCycle">1/4</strong>
+                        </span>
+                    </div>
+                    <div class="xp-bar-row">
+                        <span class="xp-label">XP</span>
+                        <div class="xp-track" aria-hidden="true">
+                            <div class="xp-fill" id="xpFill" style="width: 0%;"></div>
+                        </div>
+                        <span class="xp-val" id="xpText">0/100</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Window 2: Terminal Task & Quest Manager -->
+        <section class="wm-window win-tasks" data-win="tasks" aria-labelledby="win-tasks-title">
+            <div class="wm-titlebar">
+                <div class="wm-dots" aria-hidden="true">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <h2 class="wm-title" id="win-tasks-title">~/todo/quest-log.sh</h2>
+                <span class="wm-badge" id="tasksCountBadge">[0 PENDING]</span>
+            </div>
+
+            <div class="wm-body tasks-body">
+                <!-- Active Quest Banner -->
+                <div class="active-quest-banner" id="activeQuestBanner">
+                    <span class="aq-tag" data-i18n="activeQuestTag">[ACTIVE QUEST]</span>
+                    <span class="aq-text" id="activeQuestText">No quest selected — click [🎯]</span>
+                </div>
+
+                <!-- CLI Task Form -->
+                <form class="cli-task-form" id="taskForm">
+                    <div class="cli-input-row">
+                        <label for="newTaskInput" class="cli-prompt">$ task add</label>
+                        <input
+                            type="text"
+                            id="newTaskInput"
+                            class="cli-input"
+                            placeholder="e.g., configure hyprland.conf..."
+                            data-i18n-placeholder="taskPlaceholder"
+                            autocomplete="off"
+                            required
+                        >
+                    </div>
+                    <div class="cli-options-row">
+                        <select id="taskTagSelect" class="cli-select" aria-label="Task tag" data-i18n-aria="taskTagAria">
+                            <option value="CODE">[CODE]</option>
+                            <option value="STUDY">[STUDY]</option>
+                            <option value="RICE">[RICE]</option>
+                            <option value="BOSS">[BOSS]</option>
+                        </select>
+                        <select id="taskEstSelect" class="cli-select" aria-label="Estimated pomodoros" data-i18n-aria="taskEstAria">
+                            <option value="1">1 🍅</option>
+                            <option value="2" selected>2 🍅</option>
+                            <option value="3">3 🍅</option>
+                            <option value="4">4 🍅</option>
+                            <option value="5">5 🍅</option>
+                        </select>
+                        <button type="submit" class="arcade-btn btn-exec" id="addTaskBtn">[+ EXEC]</button>
+                    </div>
+                </form>
+
+                <!-- Filter Bar -->
+                <div class="task-filters">
+                    <div class="filter-group" role="group" aria-label="Filter tasks" data-i18n-aria="filterGroupAria">
+                        <button type="button" class="filter-btn is-active" data-filter="all" data-i18n="filterAll">ALL</button>
+                        <button type="button" class="filter-btn" data-filter="pending" data-i18n="filterPending">PENDING</button>
+                        <button type="button" class="filter-btn" data-filter="cleared" data-i18n="filterCleared">CLEARED</button>
+                    </div>
+                    <button type="button" class="filter-btn btn-purge" id="clearCompletedBtn" title="Remove completed tasks" data-i18n-title="clearCompletedTitle">
+                        [rm -rf --completed]
+                    </button>
+                </div>
+
+                <!-- Task List -->
+                <ul class="quest-list" id="questList" aria-live="polite"></ul>
+            </div>
+        </section>
+
+        <!-- Window 3: Fastfetch Telemetry -->
+        <section class="wm-window win-fetch" data-win="fetch" aria-labelledby="win-fetch-title">
+            <div class="wm-titlebar">
+                <div class="wm-dots" aria-hidden="true">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <h2 class="wm-title" id="win-fetch-title">fastfetch --pomo</h2>
+                <span class="wm-badge">[TTY1]</span>
+            </div>
+
+            <div class="wm-body fetch-body">
+                <div class="fastfetch-grid">
+                    <pre class="arch-ascii" aria-hidden="true">
+       /\
+      /  \
+     /\   \
+    /      \
+   /   ,,   \
+  /   |  |  -\
+ /_-''    ''-_\</pre>
+                    <div class="fetch-info">
+                        <div class="fetch-host"><span class="c-cyan">user</span>@<span class="c-cyan">archlinux</span></div>
+                        <div class="fetch-sep">----------------</div>
+                        <ul class="fetch-kv">
+                            <li><span class="fk">OS:</span> Arch Linux x86_64 (8-bit kernel)</li>
+                            <li><span class="fk">WM:</span> HyprPomo Tiling WM</li>
+                            <li><span class="fk" data-i18n="fetchFocusLabel">Focus Time:</span> <span id="fetchFocusTime">0 min</span></li>
+                            <li><span class="fk" data-i18n="fetchClearedLabel">Cleared Quests:</span> <span id="fetchClearedQuests">0</span></li>
+                            <li><span class="fk">Pomodoros:</span> <span id="fetchPomodoros">0</span></li>
+                            <li><span class="fk" data-i18n="fetchStreakLabel">Streak:</span> <span id="fetchStreak">0 cycles</span></li>
+                        </ul>
+                        <div class="ansi-palette" aria-hidden="true">
+                            <span class="ansi-b" style="background:#45475a"></span>
+                            <span class="ansi-b" style="background:#f38ba8"></span>
+                            <span class="ansi-b" style="background:#a6e3a1"></span>
+                            <span class="ansi-b" style="background:#f9e2af"></span>
+                            <span class="ansi-b" style="background:#1793d1"></span>
+                            <span class="ansi-b" style="background:#cba6f7"></span>
+                            <span class="ansi-b" style="background:#89dceb"></span>
+                            <span class="ansi-b" style="background:#cdd6f4"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Window 4: man pomotimer -->
+        <section class="wm-window win-man" data-win="man" aria-labelledby="win-man-title">
+            <div class="wm-titlebar">
+                <div class="wm-dots" aria-hidden="true">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <h2 class="wm-title" id="win-man-title">man pomotimer(1)</h2>
+                <span class="wm-badge">[DOCS]</span>
+            </div>
+
+            <div class="wm-body man-body">
+                <div class="man-tabs" role="tablist" aria-label="Manual sections" data-i18n-aria="manTabsAria">
+                    <button type="button" class="man-tab is-active" role="tab" aria-selected="true" data-man="keys" data-i18n="manTabKeys">KEYBINDINGS</button>
+                    <button type="button" class="man-tab" role="tab" aria-selected="false" data-man="features" data-i18n="manTabFeatures">FEATURES</button>
+                    <button type="button" class="man-tab" role="tab" aria-selected="false" data-man="pricing" data-i18n="manTabPricing">PRICING</button>
+                    <button type="button" class="man-tab" role="tab" aria-selected="false" data-man="about" data-i18n="manTabAbout">ABOUT</button>
+                </div>
+
+                <div class="man-panel is-active" data-man-panel="keys" data-i18n-html="manPanelKeys">
+                    <p class="man-heading">NAME</p>
+                    <p class="man-indent">pomotimer — r/unixporn + 8-bit RPG HUD Pomodoro timer</p>
+                    <p class="man-heading">KEYBINDINGS</p>
+                    <table class="man-table">
+                        <tbody>
+                            <tr><td><kbd>Space</kbd></td><td>Start / Pause current timer</td></tr>
+                            <tr><td><kbd>R</kbd></td><td>Reset current timer phase</td></tr>
+                            <tr><td><kbd>N</kbd></td><td>Skip to next phase (Focus / Break)</td></tr>
+                            <tr><td><kbd>/</kbd></td><td>Focus <code>$ task add</code> input</td></tr>
+                            <tr><td><kbd>1</kbd> - <kbd>3</kbd></td><td>Switch mode (Pomodoro / Short / Long)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="man-panel" data-man-panel="features" data-i18n-html="manPanelFeatures">
+                    <p class="man-heading">POMODORO ENGINE</p>
+                    <p class="man-indent">Alternate deep focus blocks (25m default) with short breaks (5m) and long breaks (15m). Adjust durations inline or in <code>dotfiles.conf</code> with 8-bit chiptune alerts.</p>
+                    <p class="man-heading">QUEST LOG (TO-DO LIST)</p>
+                    <p class="man-indent">Manage tasks with tags, pomodoro estimates, and Active Quest targeting. Data is saved automatically in your browser (localStorage + cookies).</p>
+                </div>
+
+                <div class="man-panel" data-man-panel="pricing" data-i18n-html="manPanelPricing">
+                    <p class="man-heading">LICENSE &amp; PRICING</p>
+                    <p class="man-indent"><strong class="c-green">FREE FOREVER (GPL / FOSS Spirit):</strong> 100% free, no hidden fees, no subscriptions, and zero distractions. Pure Arch Linux productivity.</p>
+                </div>
+
+                <div class="man-panel" data-man-panel="about" data-i18n-html="manPanelAbout">
+                    <p class="man-heading">POMODORO TECHNIQUE</p>
+                    <p class="man-indent">Created by Francesco Cirillo in the late 1980s, it breaks work into 25-minute intervals separated by short breaks to maintain focus, avoid burnout, and beat procrastination. Take a long break every 4 cycles.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="wm-footer">
+        <span>$ echo "developed by <a href="https://github.com/b92c" target="_blank" rel="noopener noreferrer" class="dev-link">b92c</a>"</span>
+    </footer>
+
+    <!-- Native Modal Dialog for dotfiles.conf -->
+    <dialog id="dotfiles-dialog" closedby="any" aria-labelledby="dotfiles-dialog-title">
+        <div class="dialog-frame">
+            <div class="wm-titlebar">
+                <div class="wm-dots" aria-hidden="true">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <h2 class="wm-title" id="dotfiles-dialog-title">~/.config/pomotimer/dotfiles.conf</h2>
+                <form method="dialog">
+                    <button type="submit" value="cancel" class="dialog-close-btn" aria-label="Close settings" data-i18n-aria="closeSettingsAria">[✖]</button>
+                </form>
+            </div>
+
+            <form method="dialog" id="dotfilesForm" class="dialog-content">
+                <p class="conf-comment" data-i18n="confComment"># Edit PomoTimer environment variables</p>
+
+                <div class="conf-grid">
+                    <label class="conf-field" for="cfgFocusMin">
+                        <span>POMODORO_MIN =</span>
+                        <input type="number" id="cfgFocusMin" min="1" max="120" value="25" autofocus>
+                    </label>
+                    <label class="conf-field" for="cfgShortMin">
+                        <span>SHORT_BREAK_MIN =</span>
+                        <input type="number" id="cfgShortMin" min="1" max="60" value="5">
+                    </label>
+                    <label class="conf-field" for="cfgLongMin">
+                        <span>LONG_BREAK_MIN =</span>
+                        <input type="number" id="cfgLongMin" min="1" max="90" value="15">
+                    </label>
+                    <label class="conf-field" for="cfgVolume">
+                        <span>SFX_VOLUME =</span>
+                        <input type="range" id="cfgVolume" min="0" max="100" value="50">
+                    </label>
+                    <label class="conf-field" for="cfgLang">
+                        <span data-i18n="cfgLangLabel">LOCALE_LANG =</span>
+                        <select id="cfgLang" class="cli-select">
+                            <option value="en">en_US.UTF-8 (English)</option>
+                            <option value="pt">pt_BR.UTF-8 (Português)</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="conf-toggles">
+                    <label class="conf-checkbox" for="cfgAutoBreak">
+                        <input type="checkbox" id="cfgAutoBreak">
+                        <span>AUTO_START_BREAK=true</span>
+                    </label>
+                    <label class="conf-checkbox" for="cfgAutoFocus">
+                        <input type="checkbox" id="cfgAutoFocus">
+                        <span>AUTO_START_FOCUS=false</span>
+                    </label>
+                    <label class="conf-checkbox" for="cfgCrt">
+                        <input type="checkbox" id="cfgCrt" checked>
+                        <span>ENABLE_CRT_SCANLINES=true</span>
+                    </label>
+                </div>
+
+                <div class="dialog-actions">
+                    <button type="submit" value="cancel" class="arcade-btn btn-reset" data-i18n="btnCancel">[ESC: CANCEL]</button>
+                    <button type="submit" value="save" class="arcade-btn btn-start" data-i18n="btnSave">[💾 :wq SAVE]</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <script src="app.js"></script>
+</body>
+</html>

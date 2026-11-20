@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <!-- Leaf / Crown -->
+  <rect x="7" y="1" width="2" height="2" fill="#a6e3a1"/>
+  <rect x="5" y="2" width="2" height="1" fill="#a6e3a1"/>
+  <rect x="9" y="2" width="2" height="1" fill="#a6e3a1"/>
+  <!-- Body -->
+  <rect x="4" y="3" width="8" height="2" fill="#f38ba8"/>
+  <rect x="3" y="5" width="10" height="6" fill="#f38ba8"/>
+  <rect x="4" y="11" width="8" height="2" fill="#f38ba8"/>
+  <!-- Highlight -->
+  <rect x="4" y="5" width="2" height="2" fill="#fab387"/>
+  <!-- Arch Visor / Eyes -->
+  <rect x="4" y="7" width="8" height="2" fill="#11111b"/>
+  <rect x="5" y="7" width="2" height="2" fill="#33bfff"/>
+  <rect x="9" y="7" width="2" height="2" fill="#33bfff"/>
+  <!-- Mouth / Expression -->
+  <rect x="7" y="10" width="2" height="1" fill="#11111b"/>
+  <!-- Feet -->
+  <rect x="4" y="13" width="3" height="2" fill="#1793d1"/>
+  <rect x="9" y="13" width="3" height="2" fill="#1793d1"/>
+</svg>
